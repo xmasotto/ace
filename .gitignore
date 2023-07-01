@@ -11,3 +11,9 @@ datasets/visloc_pseudo_gt_limitations
 
 # Outputs.
 output/
+
+# dsacstar build outputs
+dsacstar/build/*
+dsacstar/dist/*
+dsacstar/dsacstar.egg-info/**
+renderings

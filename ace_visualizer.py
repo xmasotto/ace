@@ -1,7 +1,7 @@
 # Copyright © Niantic, Inc. 2022.
 
 import os
-os.environ['PYOPENGL_PLATFORM'] = 'egl'
+os.environ['PYOPENGL_PLATFORM'] = 'osmesa'
 
 import logging
 import math
@@ -562,9 +562,11 @@ class ACEVisualizer:
         while max_tries > 0:
             try:
                 return self._render_frame_from_buffers()
-            except:
-                _logger.warning("Rendering failed, trying again!")
+            except Exception as e:
+                _logger.warning(f"Rendering failed, trying again! {e}")
                 max_tries -= 1
+                if max_tries <= 0:
+                    raise e  # re-raise with stack trace.
 
         raise RuntimeError("Re-rendering failed too often...")
 
@@ -590,10 +592,15 @@ class ACEVisualizer:
 
         # render PC with normal shading
         bg_RGB = self._render_pc(r, ace_map, camera, smooth_camera_pose)
-        # render camera trajectory with flat shading and alpha transparency for blending
-        cams_RGBA = self._render_trajectory(r, trajectory_mesh, camera, smooth_camera_pose, frustum_images)
-        # combine the two renders
-        blended_RGB = self._blend_images(bg_RGB, cams_RGBA)
+
+
+        # Only return background, because RGBA rendering isn't working with osmesa for some reason.
+        # https://github.com/mmatl/pyrender/issues/137
+        blended_RGB = np.copy(bg_RGB)
+        # # render camera trajectory with flat shading and alpha transparency for blending
+        # cams_RGBA = self._render_trajectory(r, trajectory_mesh, camera, smooth_camera_pose, frustum_images)
+        # # combine the two renders
+        # blended_RGB = self._blend_images(bg_RGB, cams_RGBA)
 
         # rotate from portrait to landscape
         if self.flipped_portrait:
@@ -731,7 +738,8 @@ class ACEVisualizer:
             self.frame_idx = state_dict['frame_idx']
             self.scene_camera = vutil.LazyCamera(backwards_offset=camera_z_offset,
                                                  camera_buffer=state_dict['camera_buffer'])
-        except:
+        except Exception as e:
+            _logger.warning(f'Exception: {e}')
             _logger.warning("No mapping state buffer found. Need to recreate map from network.")
 
             self.frame_idx = 0

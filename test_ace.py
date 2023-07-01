@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # Copyright © Niantic, Inc. 2022.
+import os
+os.environ['PYOPENGL_PLATFORM'] = 'osmesa'
 
 import argparse
 import logging

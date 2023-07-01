@@ -81,26 +81,26 @@ if __name__ == '__main__':
     dutil.mkdir(src_folder)
     os.chdir(src_folder)
 
-    for ds in ['chess', 'fire', 'heads', 'office', 'pumpkin', 'redkitchen', 'stairs']:
+    # for ds in ['chess', 'fire', 'heads', 'office', 'pumpkin', 'redkitchen', 'stairs']:
 
-        if not os.path.exists(ds):
+    #     if not os.path.exists(ds):
 
-            print("=== Downloading 7scenes Data:", ds, "===============================")
+    #         print("=== Downloading 7scenes Data:", ds, "===============================")
 
-            os.system(
-                'wget http://download.microsoft.com/download/2/8/5/28564B23-0828-408F-8631-23B1EFF1DAC8/' + ds + '.zip')
-            os.system('unzip ' + ds + '.zip')
-            os.system('rm ' + ds + '.zip')
+    #         os.system(
+    #             'wget http://download.microsoft.com/download/2/8/5/28564B23-0828-408F-8631-23B1EFF1DAC8/' + ds + '.zip')
+    #         os.system('unzip ' + ds + '.zip')
+    #         os.system('rm ' + ds + '.zip')
 
-            sequences = os.listdir(ds)
+    #         sequences = os.listdir(ds)
 
-            for file in sequences:
-                if file.endswith('.zip'):
-                    print("Unpacking", file)
-                    os.system('unzip ' + ds + '/' + file + ' -d ' + ds)
-                    os.system('rm ' + ds + '/' + file)
-        else:
-            print(f"Found data of scene {ds} already. Assuming its complete and skipping download.")
+    #         for file in sequences:
+    #             if file.endswith('.zip'):
+    #                 print("Unpacking", file)
+    #                 os.system('unzip ' + ds + '/' + file + ' -d ' + ds)
+    #                 os.system('rm ' + ds + '/' + file)
+    #     else:
+    #         print(f"Found data of scene {ds} already. Assuming its complete and skipping download.")
 
     print("Processing frames...")
 
@@ -304,9 +304,12 @@ if __name__ == '__main__':
         link_frames('TrainSplit.txt', 'train')
         link_frames('TestSplit.txt', 'test')
 
-
+    scenes_to_process = [
+        'chess',
+        # 'fire', 'heads', 'office', 'pumpkin', 'redkitchen', 'stairs',
+    ]
     Parallel(n_jobs=7, verbose=0)(
-        map(delayed(process_scene), ['chess', 'fire', 'heads', 'office', 'pumpkin', 'redkitchen', 'stairs']))
+        map(delayed(process_scene), scenes_to_process))
 
     if opt.depth == 'rendered':
         os.chdir('..')
